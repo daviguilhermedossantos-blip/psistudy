@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Psistudy</title>
+    
+    <!-- Conexão com o Manifest (PWA) e o CSS -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="style.css">
+    <meta name="theme-color" content="#FFD700">
+</head>
+<body>
+    
+    <!-- Cabeçalho Amarelo Fixo -->
+    <header class="fixed-header">
+        <div class="logo-container">
+            <span class="logo-symbol">Ψ</span>
+            <h1 class="logo-text">PSISTUDY</h1>
+        </div>
+        <div class="user-profile">
+            <div class="profile-pic-placeholder">M</div>
+            <span class="user-status">80</span>
+        </div>
+    </header>
+
+    <!-- Área Principal onde o conteúdo vai mudar via JS -->
+    <main class="container" id="app-content">
+        <!-- O conteúdo será injetado pelo JavaScript aqui -->
+    </main>
+
+    <!-- Barra de Navegação Inferior -->
+    <nav class="bottom-tabbar" id="tabbar" style="display: none;">
+        <button class="tab-btn" data-module="inicio">Início</button>
+        <button class="tab-btn" data-module="materias">Matérias</button>
+        <button class="tab-btn" data-module="estudo">Estudo</button>
+        <button class="tab-btn" data-module="paciente">Paciente</button>
+        <button class="tab-btn" data-module="perfil">Perfil</button>
+    </nav>
+
+    <!-- Conexão com a Lógica do App -->
+    <script src="app.js"></script>
+</body>
+</html>

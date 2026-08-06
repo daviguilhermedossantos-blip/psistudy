@@ -1,0 +1,28 @@
+services:
+  api:
+    build: ./backend
+    container_name: psistudy_backend
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend:/app
+    environment:
+      - FLASK_ENV=development
+      - DATABASE_URL=postgresql://psistudy:senha123@db:5432/psistudydb
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15-alpine
+    container_name: psistudy_db
+    environment:
+      POSTGRES_USER: psistudy
+      POSTGRES_PASSWORD: senha123
+      POSTGRES_DB: psistudydb
+    ports:
+      - "15433:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+volumes:
+  db_data:

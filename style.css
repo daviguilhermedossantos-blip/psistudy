@@ -1,0 +1,178 @@
+/* RESET BÁSICO */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #F8F8F4;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* CABEÇALHO AMARELO FIXO */
+.fixed-header {
+    background-color: #FFD700;
+    color: #222;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 70px;
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo-symbol { font-size: 28px; color: #333; }
+.logo-text { font-size: 20px; font-weight: bold; color: #333; letter-spacing: 1px; }
+.user-profile { display: flex; align-items: center; gap: 5px; }
+
+.profile-pic-placeholder {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background-color: #f0f0f0;
+    border: 2px solid #FFFFFF;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 12px;
+    font-weight: bold;
+    color: #999;
+}
+
+.user-status {
+    background-color: #FFFFFF;
+    color: #333;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 12px;
+    font-size: 12px;
+}
+
+/* ÁREA PRINCIPAL E CARTÕES */
+.container {
+    padding: 90px 20px 80px;
+    max-width: 800px;
+    margin: 0 auto;
+    flex-grow: 1;
+    width: 100%;
+}
+
+.card {
+    background-color: #FFFFFF;
+    border-radius: 12px;
+    padding: 20px;
+    width: 100%;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    margin-bottom: 20px;
+}
+
+/* TELA DE LOGIN & CADASTRO */
+.login-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.welcome-header { margin-bottom: 25px; color: #333; }
+.welcome-header h2 { font-size: 1.6em; margin-bottom: 10px; }
+.welcome-header h3 { font-size: 1.4em; color: #222; }
+.welcome-header p { font-size: 0.9em; color: #555; }
+
+.input-card { max-width: 340px; display: flex; flex-direction: column; }
+.input-card input {
+    background-color: #F0EEE4;
+    border: 1px solid #D0CEB4;
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    font-size: 1em;
+    color: #333;
+    width: 100%;
+}
+
+.btn-primary {
+    background-color: #FCD660;
+    color: #333;
+    border: none;
+    padding: 15px;
+    border-radius: 12px;
+    font-weight: bold;
+    font-size: 1em;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: background 0.3s;
+    width: 100%;
+    margin-top: 5px;
+}
+
+.btn-primary:hover { background-color: #EDC650; }
+.form-link { color: #555; font-size: 0.9em; text-decoration: none; margin-top: 15px; cursor: pointer; }
+.form-link span { color: #2F7C2F; font-weight: bold; font-size: 1.1em; display: block; margin-top: 5px; }
+
+/* BARRA DE NAVEGAÇÃO INFERIOR */
+.bottom-tabbar {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background-color: #FFFFFF;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 70px;
+    box-shadow: 0 -2px 4px rgba(0,0,0,0.05);
+    z-index: 1000;
+}
+
+.tab-btn {
+    background-color: transparent;
+    color: #888;
+    border: none;
+    font-weight: bold;
+    font-size: 0.9em;
+    cursor: pointer;
+    text-transform: capitalize;
+    transition: 0.3s;
+    padding: 10px;
+}
+
+.tab-btn.active { color: #333; border-bottom: 3px solid #FFD700; }
+
+/* CALENDÁRIO E TAREFAS */
+.grid-calendario {
+    display: grid; 
+    grid-template-columns: repeat(7, 1fr); 
+    gap: 10px; 
+    text-align: center; 
+    font-size: 1.1em;
+}
+.dia-semana { font-weight: bold; color: #888; font-size: 0.9em; margin-bottom: 10px; }
+.dia-inativo { color: #ccc; }
+.dia-hoje { background-color: #FFD700; border-radius: 8px; font-weight: bold; padding: 5px; }
+
+.tarefa-item {
+    display: flex; 
+    align-items: center; 
+    gap: 12px; 
+    margin-bottom: 10px; 
+    cursor: pointer; 
+    padding: 12px; 
+    background: #F8F8F4; 
+    border-radius: 8px;
+}
