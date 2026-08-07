@@ -2,20 +2,41 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from dotenv import load_dotenv
 import os
+import ssl # <-- Importado para garantir a conexão segura com o Neon
+
+# Carrega as variáveis do arquivo .env
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
 
-# Configuração do Banco de Dados
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///banco_reserva.db')
+# ==========================================
+# 1. CONFIGURAÇÃO DO BANCO DE DADOS (COM PG8000)
+# ==========================================
+# Pega a URL do Neon
+url_banco = os.getenv('DATABASE_URL', 'sqlite:///banco_reserva.db')
+
+# Avisa o Python para usar o pg8000 na conexão
+if url_banco.startswith("postgresql://"):
+    url_banco = url_banco.replace("postgresql://", "postgresql+pg8000://", 1)
+    # Remove o parâmetro "?sslmode=require" que vem no Neon e causa erro no pg8000
+    url_banco = url_banco.split('?')[0]
+
+app.config['SQLALCHEMY_DATABASE_URI'] = url_banco
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Força o uso do SSL (exigência do Neon para nuvem) da forma correta para o pg8000
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    'connect_args': {'ssl_context': ssl.create_default_context()}
+}
+
 db = SQLAlchemy(app)
 
 # ==========================================
-# 1. TABELAS DO BANCO DE DADOS (MODELS)
+# 2. TABELAS DO BANCO DE DADOS (MODELS)
 # ==========================================
-
 class Usuario(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(100), nullable=False)
@@ -34,24 +55,23 @@ class Materia(db.Model):
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
     nome = db.Column(db.String(100), nullable=False)
     modulo = db.Column(db.String(100), nullable=False)
-    status = db.Column(db.String(20), default='Em dia') # Pode ser 'Em dia', 'Atrasado', 'Concluído'
-    progresso = db.Column(db.Integer, default=0) # 0 a 100%
+    status = db.Column(db.String(20), default='Em dia')
+    progresso = db.Column(db.Integer, default=0)
 
 class Flashcard(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
     pergunta = db.Column(db.String(300), nullable=False)
     resposta = db.Column(db.String(500), nullable=False)
-    nivel = db.Column(db.String(20), default='Novo') # 'Novo', 'Revisar', 'Difícil', 'Dominado'
+    nivel = db.Column(db.String(20), default='Novo')
 
-# Cria as tabelas automaticamente
+# Cria as tabelas automaticamente no Neon
 with app.app_context():
     db.create_all()
 
 # ==========================================
-# 2. ROTAS DE LOGIN E CADASTRO
+# 3. ROTAS DE LOGIN E CADASTRO
 # ==========================================
-
 @app.route('/api/cadastro', methods=['POST'])
 def cadastro():
     dados = request.json
@@ -68,14 +88,12 @@ def login():
     dados = request.json
     usuario = Usuario.query.filter_by(email=dados['email'], senha=dados['senha']).first()
     if usuario:
-        # AGORA RETORNA O ID DO USUÁRIO TAMBÉM!
-        return jsonify({"sucesso": True, "mensagem": f"Login aprovado!", "usuario_id": usuario.id, "nome": usuario.nome})
+        return jsonify({"sucesso": True, "mensagem": "Login aprovado!", "usuario_id": usuario.id, "nome": usuario.nome})
     return jsonify({"sucesso": False, "mensagem": "E-mail ou senha incorretos."}), 401
 
 # ==========================================
-# 3. ROTAS DAS TAREFAS
+# 4. ROTAS DAS TAREFAS
 # ==========================================
-
 @app.route('/api/tarefas/<int:usuario_id>', methods=['GET', 'POST'])
 def gerenciar_tarefas(usuario_id):
     if request.method == 'POST':
@@ -85,8 +103,7 @@ def gerenciar_tarefas(usuario_id):
         db.session.commit()
         return jsonify({"sucesso": True, "mensagem": "Tarefa adicionada!"})
     
-    # Se for GET, lista as tarefas
-    tarefas = Tarefa.query.filter_by(usuario_id=usuario_id).all()
+    tarefas = Tarefa.query.filter_by(usuario_id=usuario_id).order_by(Tarefa.id).all()
     resultado = [{"id": t.id, "descricao": t.descricao, "concluida": t.concluida} for t in tarefas]
     return jsonify(resultado)
 
@@ -94,16 +111,14 @@ def gerenciar_tarefas(usuario_id):
 def concluir_tarefa(tarefa_id):
     tarefa = Tarefa.query.get(tarefa_id)
     if tarefa:
-        tarefa.concluida = not tarefa.concluida # Inverte (se tava falso vira verdadeiro)
+        tarefa.concluida = not tarefa.concluida
         db.session.commit()
         return jsonify({"sucesso": True})
     return jsonify({"sucesso": False}), 404
 
 # ==========================================
-# 4. ROTAS DAS MATÉRIAS E FLASHCARDS
+# 5. ROTAS DAS MATÉRIAS E FLASHCARDS
 # ==========================================
-# (Deixei preparados para conectarmos no Front-end depois!)
-
 @app.route('/api/materias/<int:usuario_id>', methods=['GET'])
 def listar_materias(usuario_id):
     materias = Materia.query.filter_by(usuario_id=usuario_id).all()
