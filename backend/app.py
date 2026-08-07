@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from dotenv import load_dotenv
 import os
-import ssl # <-- Importado para garantir a conexão segura com o Neon
+import ssl
 
 # Carrega as variáveis do arquivo .env
 load_dotenv()
@@ -18,16 +18,20 @@ CORS(app)
 # Pega a URL do Neon
 url_banco = os.getenv('DATABASE_URL', 'sqlite:///banco_reserva.db')
 
-# Avisa o Python para usar o pg8000 na conexão
-if url_banco.startswith("postgresql://"):
+# Deixa a URL à prova de falhas para o pg8000
+if url_banco.startswith("postgres://"):
+    url_banco = url_banco.replace("postgres://", "postgresql+pg8000://", 1)
+elif url_banco.startswith("postgresql://"):
     url_banco = url_banco.replace("postgresql://", "postgresql+pg8000://", 1)
-    # Remove o parâmetro "?sslmode=require" que vem no Neon e causa erro no pg8000
+
+# Remove o parâmetro "?sslmode=require" se existir, pois causa erro no pg8000
+if "?" in url_banco:
     url_banco = url_banco.split('?')[0]
 
 app.config['SQLALCHEMY_DATABASE_URI'] = url_banco
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Força o uso do SSL (exigência do Neon para nuvem) da forma correta para o pg8000
+# Força o uso do SSL (exigência do Neon para nuvem)
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
     'connect_args': {'ssl_context': ssl.create_default_context()}
 }
