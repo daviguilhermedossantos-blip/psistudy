@@ -118,7 +118,6 @@ def concluir_tarefa(tarefa_id):
 # ==========================================
 # 5. ROTAS DAS MATÉRIAS E FLASHCARDS
 # ==========================================
-# (NOVO) Agora o servidor sabe salvar matérias novas!
 @app.route('/api/materias/<int:usuario_id>', methods=['GET', 'POST'])
 def gerenciar_materias(usuario_id):
     if request.method == 'POST':
@@ -131,6 +130,22 @@ def gerenciar_materias(usuario_id):
     materias = Materia.query.filter_by(usuario_id=usuario_id).order_by(Materia.id).all()
     resultado = [{"id": m.id, "nome": m.nome, "modulo": m.modulo, "status": m.status, "progresso": m.progresso} for m in materias]
     return jsonify(resultado)
+
+# NOVA ROTA: Permite atualizar o status e o gráfico de progresso
+@app.route('/api/materias/atualizar/<int:materia_id>', methods=['PUT'])
+def atualizar_materia(materia_id):
+    materia = Materia.query.get(materia_id)
+    if not materia:
+        return jsonify({"sucesso": False}), 404
+    
+    dados = request.json
+    if 'progresso' in dados:
+        materia.progresso = dados['progresso']
+    if 'status' in dados:
+        materia.status = dados['status']
+        
+    db.session.commit()
+    return jsonify({"sucesso": True})
 
 @app.route('/api/flashcards/<int:usuario_id>', methods=['GET'])
 def listar_flashcards(usuario_id):

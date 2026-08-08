@@ -9,7 +9,6 @@ const appContent = document.getElementById('app-content');
 const tabbar = document.getElementById('tabbar');
 const tabBtns = document.querySelectorAll('.tab-btn');
 
-// Conexão com o Render
 const API_BASE = 'https://psistudy.onrender.com/api';
 
 // ==========================================
@@ -88,14 +87,13 @@ const telaInicial = `
     </div>
 `;
 
-// O NOVO VISUAL DAS MATÉRIAS
 const telaMaterias = `
     <div class="card" style="border-left: 5px solid #4CAF50;">
         <h2 style="margin-bottom: 15px; color: #333;">Minhas Matérias 📚</h2>
         
         <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
             <input type="text" id="input-materia-nome" placeholder="Nome da Matéria (Ex: Psicanálise)" style="padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px;">
-            <input type="text" id="input-materia-modulo" placeholder="Semestre (Ex: 3º Semestre)" style="padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px;">
+            <input type="text" id="input-materia-modulo" placeholder="Módulo (Ex: 3º Semestre)" style="padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px;">
             <button id="btn-add-materia" style="background: #4CAF50; color: white; border: none; border-radius: 8px; font-weight: bold; padding: 12px; cursor: pointer; font-size: 16px;">+ Adicionar Matéria</button>
         </div>
 
@@ -256,7 +254,6 @@ window.concluirTarefa = async function(tarefaId) {
     buscarTarefas();
 };
 
-// AS FUNÇÕES NOVAS DAS MATÉRIAS
 function carregarMaterias() {
     appContent.innerHTML = telaMaterias;
     buscarMaterias();
@@ -289,6 +286,7 @@ function carregarMaterias() {
     }, 50);
 }
 
+// O VISUAL COMPLETO DAS MATÉRIAS: Semáforo, Gráfico e Drive!
 async function buscarMaterias() {
     const usuarioId = localStorage.getItem('usuario_id');
     try {
@@ -303,13 +301,54 @@ async function buscarMaterias() {
 
         container.innerHTML = '';
         materias.forEach(m => {
-            const corStatus = m.status === 'Em dia' ? '#28a745' : '#dc3545';
+            let corStatus = '#28a745'; 
+            let iconeStatus = '🟢';
+            let progresso = m.progresso || 0;
+            
+            if (m.status === 'Atrasado') {
+                corStatus = '#dc3545';
+                iconeStatus = '🔴';
+            } else if (m.status === 'Atenção') {
+                corStatus = '#ffc107'; 
+                iconeStatus = '🟡';
+            } else if (m.status === 'Concluído') {
+                corStatus = '#17a2b8'; 
+                iconeStatus = '✅';
+                progresso = 100;
+            }
+
             const html = `
-                <div style="border: 1px solid #eee; padding: 15px; border-radius: 8px; margin-bottom: 10px; background: #fafafa; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                    <h3 style="margin: 0 0 5px 0; color: #333;">${m.nome}</h3>
-                    <p style="margin: 0; color: #666; font-size: 0.9em;">Módulo/Semestre: <b>${m.modulo}</b></p>
-                    <div style="margin-top: 10px; display: inline-block; background: ${corStatus}20; color: ${corStatus}; padding: 4px 10px; border-radius: 12px; font-size: 0.8em; font-weight: bold;">
-                        ${m.status}
+                <div style="border: 1px solid #eee; padding: 15px; border-radius: 8px; margin-bottom: 15px; background: #fafafa; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div>
+                            <h3 style="margin: 0 0 5px 0; color: #333; display: flex; align-items: center; gap: 5px;">
+                                ${iconeStatus} ${m.nome}
+                            </h3>
+                            <p style="margin: 0 0 10px 0; color: #666; font-size: 0.9em;">Módulo: <b>${m.modulo}</b></p>
+                        </div>
+                        <a href="https://drive.google.com" target="_blank" style="background: #f1f3f4; color: #333; text-decoration: none; padding: 5px 10px; border-radius: 6px; font-size: 0.8em; display: flex; align-items: center; gap: 5px; border: 1px solid #ddd; font-weight: bold;">
+                            📁 Drive
+                        </a>
+                    </div>
+                    
+                    <div style="margin-top: 10px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.85em; color: #555; margin-bottom: 5px; font-weight: bold;">
+                            <span>Progresso</span>
+                            <span>${progresso}%</span>
+                        </div>
+                        <div style="width: 100%; background-color: #e9ecef; border-radius: 10px; height: 12px; overflow: hidden; border: 1px solid #ddd;">
+                            <div style="width: ${progresso}%; background-color: ${corStatus}; height: 100%; transition: width 0.4s ease;"></div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 15px; display: flex; gap: 10px;">
+                        <button onclick="aumentarProgresso(${m.id}, ${progresso})" style="flex: 1; background: #fff; border: 1px solid #ccc; padding: 8px; border-radius: 4px; cursor: pointer; font-size: 0.8em; font-weight: bold; color: #333;">+10% Progresso</button>
+                        <select onchange="mudarStatusMateria(${m.id}, this.value)" style="flex: 1.5; padding: 8px; border-radius: 4px; border: 1px solid #ccc; font-size: 0.8em; font-weight: bold; color: #333; background: #fff;">
+                            <option value="Em dia" ${m.status === 'Em dia' ? 'selected' : ''}>Em dia</option>
+                            <option value="Atenção" ${m.status === 'Atenção' ? 'selected' : ''}>Atenção</option>
+                            <option value="Atrasado" ${m.status === 'Atrasado' ? 'selected' : ''}>Atrasado</option>
+                            <option value="Concluído" ${m.status === 'Concluído' ? 'selected' : ''}>Concluído</option>
+                        </select>
                     </div>
                 </div>
             `;
@@ -319,6 +358,33 @@ async function buscarMaterias() {
         console.error("Erro ao buscar matérias");
     }
 }
+
+// Funções para atualizar o gráfico e semáforo ao clicar!
+window.aumentarProgresso = async function(id, progressoAtual) {
+    let novoProgresso = progressoAtual + 10;
+    if(novoProgresso > 100) novoProgresso = 100;
+    
+    await fetch(`${API_BASE}/materias/atualizar/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ progresso: novoProgresso })
+    });
+    buscarMaterias(); // Recarrega para animar a barra
+};
+
+window.mudarStatusMateria = async function(id, novoStatus) {
+    let progresso = null;
+    if (novoStatus === 'Concluído') progresso = 100;
+
+    const body = progresso !== null ? { status: novoStatus, progresso } : { status: novoStatus };
+
+    await fetch(`${API_BASE}/materias/atualizar/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+    });
+    buscarMaterias(); // Recarrega para mudar a cor do semáforo
+};
 
 // ==========================================
 // 3. INICIALIZAÇÃO
@@ -336,7 +402,7 @@ tabBtns.forEach(btn => {
 
         const modulo = btn.dataset.module;
         if (modulo === 'inicio') carregarInicio();
-        else if (modulo === 'materias') carregarMaterias(); // AGORA ELE CHAMA A FUNÇÃO DAS MATÉRIAS!
+        else if (modulo === 'materias') carregarMaterias();
         else if (modulo === 'estudo') appContent.innerHTML = telaEstudo;
         else if (modulo === 'paciente') appContent.innerHTML = telaPaciente;
         else if (modulo === 'perfil') {
