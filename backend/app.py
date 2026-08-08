@@ -15,23 +15,19 @@ CORS(app)
 # ==========================================
 # 1. CONFIGURAÇÃO DO BANCO DE DADOS (COM PG8000)
 # ==========================================
-# Pega a URL do Neon
 url_banco = os.getenv('DATABASE_URL', 'sqlite:///banco_reserva.db')
 
-# Deixa a URL à prova de falhas para o pg8000
 if url_banco.startswith("postgres://"):
     url_banco = url_banco.replace("postgres://", "postgresql+pg8000://", 1)
 elif url_banco.startswith("postgresql://"):
     url_banco = url_banco.replace("postgresql://", "postgresql+pg8000://", 1)
 
-# Remove o parâmetro "?sslmode=require" se existir, pois causa erro no pg8000
 if "?" in url_banco:
     url_banco = url_banco.split('?')[0]
 
 app.config['SQLALCHEMY_DATABASE_URI'] = url_banco
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Força o uso do SSL (exigência do Neon para nuvem)
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
     'connect_args': {'ssl_context': ssl.create_default_context()}
 }
@@ -69,7 +65,6 @@ class Flashcard(db.Model):
     resposta = db.Column(db.String(500), nullable=False)
     nivel = db.Column(db.String(20), default='Novo')
 
-# Cria as tabelas automaticamente no Neon
 with app.app_context():
     db.create_all()
 
@@ -123,9 +118,17 @@ def concluir_tarefa(tarefa_id):
 # ==========================================
 # 5. ROTAS DAS MATÉRIAS E FLASHCARDS
 # ==========================================
-@app.route('/api/materias/<int:usuario_id>', methods=['GET'])
-def listar_materias(usuario_id):
-    materias = Materia.query.filter_by(usuario_id=usuario_id).all()
+# (NOVO) Agora o servidor sabe salvar matérias novas!
+@app.route('/api/materias/<int:usuario_id>', methods=['GET', 'POST'])
+def gerenciar_materias(usuario_id):
+    if request.method == 'POST':
+        dados = request.json
+        nova_materia = Materia(usuario_id=usuario_id, nome=dados['nome'], modulo=dados['modulo'])
+        db.session.add(nova_materia)
+        db.session.commit()
+        return jsonify({"sucesso": True})
+    
+    materias = Materia.query.filter_by(usuario_id=usuario_id).order_by(Materia.id).all()
     resultado = [{"id": m.id, "nome": m.nome, "modulo": m.modulo, "status": m.status, "progresso": m.progresso} for m in materias]
     return jsonify(resultado)
 

@@ -9,8 +9,8 @@ const appContent = document.getElementById('app-content');
 const tabbar = document.getElementById('tabbar');
 const tabBtns = document.querySelectorAll('.tab-btn');
 
-// Guarda o IP automaticamente para conectar com o Python
-const API_BASE = 'https://psistudy.onrender.com';
+// Conexão com o Render
+const API_BASE = 'https://psistudy.onrender.com/api';
 
 // ==========================================
 // 1. TELAS (VISUAL)
@@ -26,8 +26,6 @@ const telaLogin = `
             <input type="email" placeholder="Digite seu e-mail" id="login-email">
             <input type="password" placeholder="Digite sua senha" id="login-senha">
             <button class="btn-primary" id="btn-entrar">ENTRAR →</button>
-            
-            <!-- Link de recuperar senha -->
             <div style="text-align: center; margin-top: 20px;">
                 <a href="#" style="color: #777; text-decoration: none; font-size: 0.95em;">Esqueceu a senha?</a>
             </div>
@@ -80,21 +78,35 @@ const telaInicial = `
     
     <div class="card" style="border-left: 5px solid #FFD700;">
         <h2 style="font-size: 1.2em; margin-bottom: 15px;">Lista de Estudos de Hoje</h2>
-        
         <div style="display: flex; gap: 10px; margin-bottom: 15px;">
             <input type="text" id="input-nova-tarefa" placeholder="O que você vai estudar?" style="flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 8px;">
             <button id="btn-add-tarefa" style="background: #FFD700; border: none; border-radius: 8px; font-weight: bold; padding: 0 15px; cursor: pointer;">+</button>
         </div>
-
         <div id="container-tarefas">
             <p style="text-align: center; color: #888;">Carregando tarefas...</p>
         </div>
     </div>
 `;
 
+// O NOVO VISUAL DAS MATÉRIAS
+const telaMaterias = `
+    <div class="card" style="border-left: 5px solid #4CAF50;">
+        <h2 style="margin-bottom: 15px; color: #333;">Minhas Matérias 📚</h2>
+        
+        <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+            <input type="text" id="input-materia-nome" placeholder="Nome da Matéria (Ex: Psicanálise)" style="padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px;">
+            <input type="text" id="input-materia-modulo" placeholder="Semestre (Ex: 3º Semestre)" style="padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px;">
+            <button id="btn-add-materia" style="background: #4CAF50; color: white; border: none; border-radius: 8px; font-weight: bold; padding: 12px; cursor: pointer; font-size: 16px;">+ Adicionar Matéria</button>
+        </div>
+
+        <div id="container-materias">
+            <p style="text-align: center; color: #888;">Carregando matérias...</p>
+        </div>
+    </div>
+`;
+
 const telaEstudo = `<div class="card" style="border-left: 5px solid #FFD700; text-align: center;"><h2>Em Breve: Flashcards Integrados!</h2></div>`;
 const telaPaciente = `<div class="card" style="border-left: 5px solid #FFD700;"><h2>Em Breve: IA do Paciente!</h2></div>`;
-const telaMaterias = `<div class="card" style="border-left: 5px solid #FFD700;"><h2>Em Breve: Matérias Reais!</h2></div>`;
 const telaPerfil = `
     <div class="card" style="border-left: 5px solid #FFD700;">
         <h2>Perfil</h2>
@@ -108,10 +120,9 @@ const telaPerfil = `
 
 function carregarLogin() {
     appContent.innerHTML = telaLogin;
-    tabbar.style.display = 'none'; // Esconde barra de baixo
-    
+    tabbar.style.display = 'none';
     const perfilTopo = document.getElementById('perfil-topo');
-    if(perfilTopo) perfilTopo.style.display = 'none'; // Esconde perfil de cima
+    if(perfilTopo) perfilTopo.style.display = 'none';
     
     setTimeout(() => {
         document.getElementById('btn-entrar').addEventListener('click', async () => {
@@ -143,7 +154,6 @@ function carregarLogin() {
                 btn.innerText = "ENTRAR →";
             }
         });
-
         document.getElementById('btn-ir-cadastro').addEventListener('click', carregarCadastro);
     }, 50);
 }
@@ -151,7 +161,6 @@ function carregarLogin() {
 function carregarCadastro() {
     appContent.innerHTML = telaCadastro;
     tabbar.style.display = 'none';
-    
     const perfilTopo = document.getElementById('perfil-topo');
     if(perfilTopo) perfilTopo.style.display = 'none';
     
@@ -182,17 +191,15 @@ function carregarCadastro() {
                 btn.innerText = "CADASTRAR";
             }
         });
-
         document.getElementById('btn-voltar-login').addEventListener('click', carregarLogin);
     }, 50);
 }
 
 function carregarInicio() {
     appContent.innerHTML = telaInicial;
-    tabbar.style.display = 'flex'; // Mostra barra de baixo
-    
+    tabbar.style.display = 'flex';
     const perfilTopo = document.getElementById('perfil-topo');
-    if(perfilTopo) perfilTopo.style.display = 'flex'; // Mostra perfil de cima
+    if(perfilTopo) perfilTopo.style.display = 'flex';
 
     tabBtns.forEach(btn => btn.classList.remove('active'));
     document.querySelector('[data-module="inicio"]').classList.add('active');
@@ -219,20 +226,17 @@ function carregarInicio() {
 
 async function buscarTarefas() {
     const usuarioId = localStorage.getItem('usuario_id');
-    if (!usuarioId) return carregarLogin();
-
     try {
         const resposta = await fetch(`${API_BASE}/tarefas/${usuarioId}`);
         const tarefas = await resposta.json();
         const container = document.getElementById('container-tarefas');
         
         if (tarefas.length === 0) {
-            container.innerHTML = '<p style="text-align: center; color: #888;">Nenhuma tarefa ainda. Adicione uma acima!</p>';
+            container.innerHTML = '<p style="text-align: center; color: #888;">Nenhuma tarefa ainda.</p>';
             return;
         }
 
         container.innerHTML = '';
-        
         tarefas.forEach(tarefa => {
             const html = `
                 <label class="tarefa-item" style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px; padding: 10px; border: 1px solid #eee; border-radius: 8px;">
@@ -252,18 +256,79 @@ window.concluirTarefa = async function(tarefaId) {
     buscarTarefas();
 };
 
+// AS FUNÇÕES NOVAS DAS MATÉRIAS
+function carregarMaterias() {
+    appContent.innerHTML = telaMaterias;
+    buscarMaterias();
+
+    setTimeout(() => {
+        document.getElementById('btn-add-materia').addEventListener('click', async () => {
+            const nome = document.getElementById('input-materia-nome').value;
+            const modulo = document.getElementById('input-materia-modulo').value;
+            
+            if(!nome || !modulo) return alert("Preencha o nome e o semestre da matéria!");
+
+            const usuarioId = localStorage.getItem('usuario_id');
+            const btn = document.getElementById('btn-add-materia');
+            btn.innerText = "Adicionando...";
+
+            try {
+                await fetch(`${API_BASE}/materias/${usuarioId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nome, modulo })
+                });
+                document.getElementById('input-materia-nome').value = '';
+                document.getElementById('input-materia-modulo').value = '';
+                buscarMaterias();
+            } catch (e) {
+                alert("Erro ao conectar com o servidor.");
+            }
+            btn.innerText = "+ Adicionar Matéria";
+        });
+    }, 50);
+}
+
+async function buscarMaterias() {
+    const usuarioId = localStorage.getItem('usuario_id');
+    try {
+        const resposta = await fetch(`${API_BASE}/materias/${usuarioId}`);
+        const materias = await resposta.json();
+        const container = document.getElementById('container-materias');
+        
+        if (materias.length === 0) {
+            container.innerHTML = '<p style="text-align: center; color: #888;">Nenhuma matéria cadastrada. Adicione a primeira acima!</p>';
+            return;
+        }
+
+        container.innerHTML = '';
+        materias.forEach(m => {
+            const corStatus = m.status === 'Em dia' ? '#28a745' : '#dc3545';
+            const html = `
+                <div style="border: 1px solid #eee; padding: 15px; border-radius: 8px; margin-bottom: 10px; background: #fafafa; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                    <h3 style="margin: 0 0 5px 0; color: #333;">${m.nome}</h3>
+                    <p style="margin: 0; color: #666; font-size: 0.9em;">Módulo/Semestre: <b>${m.modulo}</b></p>
+                    <div style="margin-top: 10px; display: inline-block; background: ${corStatus}20; color: ${corStatus}; padding: 4px 10px; border-radius: 12px; font-size: 0.8em; font-weight: bold;">
+                        ${m.status}
+                    </div>
+                </div>
+            `;
+            container.innerHTML += html;
+        });
+    } catch (erro) {
+        console.error("Erro ao buscar matérias");
+    }
+}
+
 // ==========================================
 // 3. INICIALIZAÇÃO
 // ==========================================
-
-// Verifica se o usuário já está logado ao abrir o app
 if (localStorage.getItem('usuario_id')) {
     carregarInicio();
 } else {
     carregarLogin();
 }
 
-// Lógica de clique nos botões da barra inferior
 tabBtns.forEach(btn => {
     btn.addEventListener('click', () => {
         tabBtns.forEach(b => b.classList.remove('active'));
@@ -271,7 +336,7 @@ tabBtns.forEach(btn => {
 
         const modulo = btn.dataset.module;
         if (modulo === 'inicio') carregarInicio();
-        else if (modulo === 'materias') appContent.innerHTML = telaMaterias;
+        else if (modulo === 'materias') carregarMaterias(); // AGORA ELE CHAMA A FUNÇÃO DAS MATÉRIAS!
         else if (modulo === 'estudo') appContent.innerHTML = telaEstudo;
         else if (modulo === 'paciente') appContent.innerHTML = telaPaciente;
         else if (modulo === 'perfil') {
