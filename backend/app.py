@@ -70,7 +70,6 @@ def concluir_tarefa(tid):
     db.session.commit()
     return jsonify({"sucesso": True})
 
-# ROTA QUE PERMITE APAGAR A TAREFA
 @app.route('/api/tarefas/<int:tid>', methods=['DELETE'])
 def deletar_tarefa(tid):
     t = Tarefa.query.get(tid)
@@ -98,7 +97,6 @@ def atualizar_materia(mid):
     db.session.commit()
     return jsonify({"sucesso": True})
 
-# ROTA QUE PERMITE APAGAR A MATÉRIA
 @app.route('/api/materias/<int:mid>', methods=['DELETE'])
 def deletar_materia(mid):
     m = Materia.query.get(mid)

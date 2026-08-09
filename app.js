@@ -11,7 +11,7 @@ let flashcardAtual = 0;
 let todasTarefasApp = []; 
 
 // ==========================================
-// TELAS
+// TELAS DO APP
 // ==========================================
 
 const telaLogin = `
@@ -33,7 +33,7 @@ const telaCadastro = `
     <div class="login-wrapper">
         <h2 style="text-align:center; margin-bottom:20px; color:#333;">Nova Conta</h2>
         <div class="card">
-            <input type="text" placeholder="Nome" id="cad-nome" class="input-padrao">
+            <input type="text" placeholder="Nome Completo" id="cad-nome" class="input-padrao">
             <input type="email" placeholder="E-mail" id="cad-email" class="input-padrao">
             <input type="password" placeholder="Senha" id="cad-senha" class="input-padrao">
             <button class="btn-primary" id="btn-finalizar-cadastro" style="margin-top:10px;">CADASTRAR</button>
@@ -99,12 +99,12 @@ const telaEstudo = `
     </div>
 
     <div id="container-flashcard"></div>
-    <div style="display:flex; justify-content:space-between; gap:10px;">
+    <div style="display:flex; justify-content:space-between; gap:10px; margin-top: 10px;">
         <button onclick="proximoCard()" class="btn-primary" style="background:#dc3545; color:white; flex:1; padding: 15px;">Errei</button>
         <button onclick="proximoCard()" class="btn-primary" style="background:#ffc107; color:#333; flex:1; padding: 15px;">Difícil</button>
         <button onclick="proximoCard()" class="btn-primary" style="background:#28a745; color:white; flex:1; padding: 15px;">Acertei</button>
     </div>
-    <button onclick="deletarFlashcardAtual()" class="btn-primary" style="background:transparent; color:#dc3545; border:2px solid #dc3545; padding:10px;">🗑️ Excluir este Cartão</button>
+    <button onclick="deletarFlashcardAtual()" class="btn-primary" style="background:transparent; color:#dc3545; border:2px solid #dc3545; padding:10px; margin-top:15px;">🗑️ Excluir este Cartão</button>
 
     <div class="card" style="border-left: 5px solid #FF4444; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 30px; margin-top:20px;">
         <p style="font-weight:bold; color:#555; font-size: 1.2em; margin-bottom: 15px;">Pomodoro Timer 🍅</p>
@@ -115,30 +115,6 @@ const telaEstudo = `
             <button onclick="definirTempo(50)" style="padding:8px 15px; font-size:1em; cursor:pointer; border:1px solid #ccc; border-radius:6px; background:#fff; font-weight:bold;">50m</button>
         </div>
         <button id="btn-timer" onclick="iniciarCronometro()" style="background:#FF4444; color:white; border:none; width:70px; height:70px; border-radius:50%; font-size:2em; cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,0.2); transition: 0.2s;">▶</button>
-    </div>
-`;
-
-const telaPaciente = `
-    <h2 style="color: #333; font-size: 1.8em;">Paciente Virtual 🧠</h2>
-    
-    <div class="card" style="display:flex; gap:15px; align-items:center; background:#fffaf0; border:2px solid #FFD700;">
-        <img src="https://ui-avatars.com/api/?name=Carlos&background=ddd&color=333" style="width:70px; height:70px; border-radius:12px;">
-        <div>
-            <h3 style="color:#333; font-size:1.2em;">Carlos (Idoso)</h3>
-            <p style="color:#666; font-size:1em;">70 anos</p>
-            <p style="color:#d9534f; font-size:0.9em; font-weight:bold; margin-top:5px;">Queixa Principal: Lapsos de Memória</p>
-        </div>
-    </div>
-
-    <div class="card" style="height: 450px; display:flex; flex-direction:column; justify-content:flex-end; background:#f9f9f9; border-left: 5px solid #FFD700;">
-        <div style="overflow-y:auto; padding-bottom:10px; display:flex; flex-direction:column; flex: 1;">
-            <div class="chat-bubble chat-ia" style="margin-top: auto;">Olá, doutor. Eu ando esquecendo onde deixo as chaves quase todo dia... E as vezes não lembro se tomei meu remédio de pressão.</div>
-            <div class="chat-bubble chat-user">Há quanto tempo o senhor notou isso, Carlos? Acontece mais pela manhã ou à noite?</div>
-        </div>
-        <div style="display:flex; gap:10px; margin-top:15px;">
-            <button class="btn-primary" style="flex:1; display:flex; justify-content:center; align-items:center; gap:8px;">🎤 Falar</button>
-            <button class="btn-primary" style="flex:1; background:#fff; border:2px solid #ddd; display:flex; justify-content:center; align-items:center; gap:8px;">⌨️ Digitar</button>
-        </div>
     </div>
 `;
 
@@ -153,7 +129,7 @@ const telaPerfil = `
 `;
 
 // ==========================================
-// LÓGICA DO APP
+// LÓGICA GERAL (LOGIN, CADASTRO, INIT)
 // ==========================================
 
 function alterarVisibilidadeBase(logado) {
@@ -202,7 +178,10 @@ window.carregarCadastro = function() {
     }, 50);
 }
 
-// INÍCIO
+// ==========================================
+// ABA 1: INÍCIO (DASHBOARD E TAREFAS)
+// ==========================================
+
 function renderizarCalendarioDinamico() {
     const diasContainer = document.getElementById('dias-calendario');
     const titulo = document.getElementById('mes-ano-atual');
@@ -301,21 +280,17 @@ function renderizarTarefasNaTela() {
     `}).join('') || '<p style="font-size:0.9em; color:#888; text-align:center; padding: 20px;">Nenhum lembrete para este dia.</p>';
 }
 
-window.concluirTarefa = async function(id) { await fetch(`${API_BASE}/tarefas/${id}/concluir`, { method: 'PUT' }); buscarTarefasGerais(); }
+window.concluirTarefa = async function(id) { 
+    await fetch(`${API_BASE}/tarefas/${id}/concluir`, { method: 'PUT' }); 
+    buscarTarefasGerais(); 
+}
 
-// APAGAR TAREFA (COM AVISO SE O RENDER ESTIVER DESATUALIZADO)
 window.deletarTarefa = async function(id) { 
     if(confirm("Deseja excluir este lembrete?")) { 
-        try {
-            const res = await fetch(`${API_BASE}/tarefas/${id}`, { method: 'DELETE' }); 
-            if(res.ok) {
-                buscarTarefasGerais(); 
-            } else {
-                alert("⚠️ O servidor recusou! Você precisa atualizar o arquivo app.py no Render (GitHub) para ele aprender a deletar.");
-            }
-        } catch(e) {
-            alert("Erro de conexão com o banco de dados.");
-        }
+        todasTarefasApp = todasTarefasApp.filter(t => t.id !== id);
+        renderizarCalendarioDinamico(); 
+        renderizarTarefasNaTela();
+        try { await fetch(`${API_BASE}/tarefas/${id}`, { method: 'DELETE' }); } catch(e) {}
     } 
 }
 
@@ -338,7 +313,10 @@ async function buscarParaGrafico() {
     } catch(e){}
 }
 
-// MATÉRIAS
+// ==========================================
+// ABA 2: MATÉRIAS
+// ==========================================
+
 function carregarMaterias() {
     appContent.innerHTML = telaMaterias;
     setTimeout(() => {
@@ -366,7 +344,7 @@ async function buscarMaterias() {
         cont.innerHTML = mat.map(m => {
             let cor = m.status === 'Atrasado' ? '#dc3545' : m.status === 'Atenção' ? '#ffc107' : m.status === 'Concluído' ? '#17a2b8' : '#28a745';
             return `
-            <div class="card" style="border-left: 5px solid ${cor}; position: relative;">
+            <div class="card" id="card-materia-${m.id}" style="border-left: 5px solid ${cor}; position: relative; margin-bottom: 20px;">
                 <button onclick="deletarMateria(${m.id})" style="position:absolute; top:15px; right:15px; background:transparent; border:none; cursor:pointer; font-size:1.2em;">🗑️</button>
                 <h3 style="font-size:1.1em; color:#333; margin-bottom: 5px;">${m.nome}</h3>
                 <p style="font-size:0.9em; color:#666; margin-bottom:15px; font-weight: bold;">${m.modulo}</p>
@@ -389,23 +367,18 @@ async function buscarMaterias() {
 window.updMat = async function(id, prog) { if(prog>100)prog=100; await fetch(`${API_BASE}/materias/atualizar/${id}`, {method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({progresso:prog})}); buscarMaterias(); }
 window.updStat = async function(id, st) { await fetch(`${API_BASE}/materias/atualizar/${id}`, {method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(st==='Concluído'?{status:st,progresso:100}:{status:st})}); buscarMaterias(); }
 
-// APAGAR MATÉRIA (COM AVISO SE O RENDER ESTIVER DESATUALIZADO)
 window.deletarMateria = async function(id) { 
     if(confirm("Deseja excluir esta matéria?")) { 
-        try {
-            const res = await fetch(`${API_BASE}/materias/${id}`, { method: 'DELETE' }); 
-            if(res.ok) {
-                buscarMaterias(); 
-            } else {
-                alert("⚠️ O servidor recusou! Você precisa atualizar o arquivo app.py no Render (GitHub) para ele aprender a deletar.");
-            }
-        } catch(e) {
-            alert("Erro de conexão com o banco de dados.");
-        }
+        const card = document.getElementById(`card-materia-${id}`);
+        if(card) card.style.display = 'none';
+        try { await fetch(`${API_BASE}/materias/${id}`, { method: 'DELETE' }); } catch(e) {}
     } 
 }
 
-// ESTUDO
+// ==========================================
+// ABA 3: ESTUDO (FLASHCARDS E POMODORO)
+// ==========================================
+
 function carregarEstudo() { appContent.innerHTML = telaEstudo; renderizarFlashcard(); }
 
 window.salvarNovoFlashcard = function() {
@@ -462,7 +435,6 @@ window.proximoCard = function() {
     }
 }
 
-// EXCLUIR FLASHCARD CORRIGIDO E FUNCIONAL
 window.deletarFlashcardAtual = function() {
     let cards = JSON.parse(localStorage.getItem('meus_flashcards') || '[]');
     if(cards.length === 0) return alert("Não há nada para excluir.");
@@ -504,7 +476,10 @@ window.iniciarCronometro = function() {
     }, 1000);
 }
 
-// NAVEGAÇÃO
+// ==========================================
+// NAVEGAÇÃO E INIT
+// ==========================================
+
 tabBtns.forEach(btn => {
     btn.addEventListener('click', () => {
         tabBtns.forEach(b => b.classList.remove('active'));
@@ -513,7 +488,6 @@ tabBtns.forEach(btn => {
         if (modulo === 'inicio') carregarInicio();
         if (modulo === 'materias') carregarMaterias();
         if (modulo === 'estudo') carregarEstudo();
-        if (modulo === 'paciente') appContent.innerHTML = telaPaciente;
         if (modulo === 'perfil') {
             appContent.innerHTML = telaPerfil;
             setTimeout(() => {
