@@ -1,23 +1,37 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
 import os
-import ssl
 
 app = Flask(__name__)
 CORS(app)
 
-url_banco = os.getenv('DATABASE_URL', 'sqlite:///psistudy.db')
-if url_banco.startswith("postgres://"):
-    url_banco = url_banco.replace("postgres://", "postgresql+pg8000://", 1)
+# ==========================================
+# CONFIGURAÇÃO BLINDADA DO BANCO DE DADOS
+# ==========================================
+db_url = os.getenv('DATABASE_URL')
 
-app.config['SQLALCHEMY_DATABASE_URI'] = url_banco
+if db_url:
+    # 1. Arruma o prefixo exigido pelo SQLAlchemy
+    if db_url.startswith("postgres://"):
+        db_url = db_url.replace("postgres://", "postgresql://", 1)
+    
+    # 2. CORTA qualquer parâmetro problemático (como o ssl_context) da URL
+    if "?" in db_url:
+        db_url = db_url.split("?")[0]
+else:
+    # 3. Fallback seguro para rodar localmente no seu PC
+    db_path = os.path.join(os.path.dirname(__file__), 'psistudy.db')
+    db_url = 'sqlite:///' + db_path
+
+app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {'connect_args': {'ssl_context': ssl.create_default_context()}}
 
 db = SQLAlchemy(app)
 
+# ==========================================
+# TABELAS DO BANCO DE DADOS
+# ==========================================
 class Usuario(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(100), nullable=False)
@@ -41,13 +55,16 @@ class Materia(db.Model):
 with app.app_context():
     db.create_all()
 
+# ==========================================
+# ROTAS DA API
+# ==========================================
 @app.route('/api/cadastro', methods=['POST'])
 def cadastro():
     d = request.json
-    if Usuario.query.filter_by(email=d['email']).first(): return jsonify({"sucesso": False, "mensagem": "E-mail em uso!"}), 400
+    if Usuario.query.filter_by(email=d['email']).first(): return jsonify({"sucesso": False}), 400
     db.session.add(Usuario(nome=d['nome'], email=d['email'], senha=d['senha']))
     db.session.commit()
-    return jsonify({"sucesso": True, "mensagem": "Conta criada!"})
+    return jsonify({"sucesso": True})
 
 @app.route('/api/login', methods=['POST'])
 def login():
@@ -66,8 +83,9 @@ def tarefas(uid):
 @app.route('/api/tarefas/<int:tid>/concluir', methods=['PUT'])
 def concluir_tarefa(tid):
     t = Tarefa.query.get(tid)
-    t.concluida = not t.concluida
-    db.session.commit()
+    if t:
+        t.concluida = not t.concluida
+        db.session.commit()
     return jsonify({"sucesso": True})
 
 @app.route('/api/tarefas/<int:tid>', methods=['DELETE'])
@@ -76,8 +94,7 @@ def deletar_tarefa(tid):
     if t:
         db.session.delete(t)
         db.session.commit()
-        return jsonify({"sucesso": True})
-    return jsonify({"sucesso": False})
+    return jsonify({"sucesso": True})
 
 @app.route('/api/materias/<int:uid>', methods=['GET', 'POST'])
 def materias(uid):
@@ -103,8 +120,7 @@ def deletar_materia(mid):
     if m:
         db.session.delete(m)
         db.session.commit()
-        return jsonify({"sucesso": True})
-    return jsonify({"sucesso": False})
+    return jsonify({"sucesso": True})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
