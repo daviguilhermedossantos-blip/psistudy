@@ -2,44 +2,33 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Psistudy</title>
-    
-    <!-- Conexão com o Manifest (PWA) e o CSS -->
-    <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="style.css">
-    <meta name="theme-color" content="#FFD700">
 </head>
 <body>
-    
-    <!-- Cabeçalho Amarelo Fixo -->
-    <header class="fixed-header">
-        <div class="logo-container">
-            <span class="logo-symbol">Ψ</span>
-            <h1 class="logo-text">PSISTUDY</h1>
-        </div>
-        <!-- Perfil (Oculto no Login, o JS mostra depois) -->
-        <div class="user-profile" id="perfil-topo" style="display: none;">
-            <div class="profile-pic-placeholder">👤</div>
-            <span class="user-status">80</span>
-        </div>
-    </header>
+    <div id="app-container">
+        <!-- Topo com Logo e Level (Fixo) -->
+        <header id="perfil-topo" style="display: none;">
+            <div class="logo">Ψ PSISTUDY</div>
+            <div class="user-avatar">
+                <img src="https://ui-avatars.com/api/?name=User&background=fff&color=333" alt="Avatar" id="avatar-img">
+                <span class="level">80</span>
+            </div>
+        </header>
 
-    <!-- Área Principal onde o conteúdo vai mudar via JS -->
-    <main class="container" id="app-content">
-        <!-- O conteúdo será injetado pelo JavaScript aqui -->
-    </main>
+        <!-- Área onde as telas mudam -->
+        <main id="app-content"></main>
 
-    <!-- Barra de Navegação Inferior -->
-    <nav class="bottom-tabbar" id="tabbar" style="display: none;">
-        <button class="tab-btn" data-module="inicio">Início</button>
-        <button class="tab-btn" data-module="materias">Matérias</button>
-        <button class="tab-btn" data-module="estudo">Estudo</button>
-        <button class="tab-btn" data-module="paciente">Paciente</button>
-        <button class="tab-btn" data-module="perfil">Perfil</button>
-    </nav>
-
-    <!-- Conexão com a Lógica do App -->
+        <!-- Menu Inferior -->
+        <nav id="tabbar">
+            <button class="tab-btn active" data-module="inicio"><span style="font-size: 1.5em;">🏠</span>Início</button>
+            <button class="tab-btn" data-module="materias"><span style="font-size: 1.5em;">📚</span>Matérias</button>
+            <button class="tab-btn" data-module="estudo"><span style="font-size: 1.5em;">📖</span>Estudo</button>
+            <button class="tab-btn" data-module="paciente"><span style="font-size: 1.5em;">🧠</span>Paciente</button>
+            <button class="tab-btn" data-module="perfil"><span style="font-size: 1.5em;">👤</span>Perfil</button>
+        </nav>
+    </div>
     <script src="app.js"></script>
 </body>
 </html>

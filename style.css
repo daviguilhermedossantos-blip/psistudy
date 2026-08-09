@@ -1,178 +1,70 @@
-/* RESET BÁSICO */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
 
-body {
-    background-color: #F8F8F4;
-    color: #333;
-    display: flex;
-    flex-direction: column;
+body { background-color: #2c3e50; min-height: 100vh; display: flex; justify-content: center; }
+
+/* O Container agora é uma coluna única centralizada */
+#app-container {
+    width: 100%;
+    max-width: 650px; 
     min-height: 100vh;
-}
-
-/* CABEÇALHO AMARELO FIXO */
-.fixed-header {
-    background-color: #FFD700;
-    color: #222;
-    padding: 15px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: fixed;
-    top: 0;
-    width: 100%;
-    height: 70px;
-    z-index: 1000;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.logo-container {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.logo-symbol { font-size: 28px; color: #333; }
-.logo-text { font-size: 20px; font-weight: bold; color: #333; letter-spacing: 1px; }
-.user-profile { display: flex; align-items: center; gap: 5px; }
-
-.profile-pic-placeholder {
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
-    background-color: #f0f0f0;
-    border: 2px solid #FFFFFF;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 12px;
-    font-weight: bold;
-    color: #999;
-}
-
-.user-status {
-    background-color: #FFFFFF;
-    color: #333;
-    font-weight: bold;
-    padding: 2px 6px;
-    border-radius: 12px;
-    font-size: 12px;
-}
-
-/* ÁREA PRINCIPAL E CARTÕES */
-.container {
-    padding: 90px 20px 80px;
-    max-width: 800px;
-    margin: 0 auto;
-    flex-grow: 1;
-    width: 100%;
-}
-
-.card {
-    background-color: #FFFFFF;
-    border-radius: 12px;
-    padding: 20px;
-    width: 100%;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-    margin-bottom: 20px;
-}
-
-/* TELA DE LOGIN & CADASTRO */
-.login-screen {
+    background: linear-gradient(to bottom, #fffdf2, #fcf4d9);
     display: flex;
     flex-direction: column;
-    align-items: center;
-    text-align: center;
-    margin-top: 10px;
+    box-shadow: 0 0 25px rgba(0,0,0,0.5);
+    position: relative;
 }
 
-.welcome-header { margin-bottom: 25px; color: #333; }
-.welcome-header h2 { font-size: 1.6em; margin-bottom: 10px; }
-.welcome-header h3 { font-size: 1.4em; color: #222; }
-.welcome-header p { font-size: 0.9em; color: #555; }
-
-.input-card { max-width: 340px; display: flex; flex-direction: column; }
-.input-card input {
-    background-color: #F0EEE4;
-    border: 1px solid #D0CEB4;
-    padding: 15px;
-    border-radius: 12px;
-    margin-bottom: 15px;
-    font-size: 1em;
-    color: #333;
-    width: 100%;
+#perfil-topo {
+    display: flex; justify-content: space-between; align-items: center; padding: 15px 20px;
+    background: #FFD700; color: #333; font-weight: 900; font-size: 1.2em; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-.btn-primary {
-    background-color: #FCD660;
-    color: #333;
-    border: none;
-    padding: 15px;
-    border-radius: 12px;
-    font-weight: bold;
-    font-size: 1em;
-    cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    transition: background 0.3s;
-    width: 100%;
-    margin-top: 5px;
-}
+.user-avatar { position: relative; display: flex; align-items: center; }
+.user-avatar img { width: 35px; height: 35px; border-radius: 50%; border: 2px solid #333; }
+.user-avatar .level { position: absolute; bottom: -5px; right: -5px; background: #fff; color: #333; font-size: 10px; font-weight: bold; padding: 2px 5px; border-radius: 10px; border: 1px solid #333;}
 
-.btn-primary:hover { background-color: #EDC650; }
-.form-link { color: #555; font-size: 0.9em; text-decoration: none; margin-top: 15px; cursor: pointer; }
-.form-link span { color: #2F7C2F; font-weight: bold; font-size: 1.1em; display: block; margin-top: 5px; }
-
-/* BARRA DE NAVEGAÇÃO INFERIOR */
-.bottom-tabbar {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    background-color: #FFFFFF;
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    height: 70px;
-    box-shadow: 0 -2px 4px rgba(0,0,0,0.05);
-    z-index: 1000;
-}
-
-.tab-btn {
-    background-color: transparent;
-    color: #888;
-    border: none;
-    font-weight: bold;
-    font-size: 0.9em;
-    cursor: pointer;
-    text-transform: capitalize;
-    transition: 0.3s;
-    padding: 10px;
-}
-
-.tab-btn.active { color: #333; border-bottom: 3px solid #FFD700; }
-
-/* CALENDÁRIO E TAREFAS */
-.grid-calendario {
-    display: grid; 
-    grid-template-columns: repeat(7, 1fr); 
-    gap: 10px; 
-    text-align: center; 
-    font-size: 1.1em;
-}
-.dia-semana { font-weight: bold; color: #888; font-size: 0.9em; margin-bottom: 10px; }
-.dia-inativo { color: #ccc; }
-.dia-hoje { background-color: #FFD700; border-radius: 8px; font-weight: bold; padding: 5px; }
-
-.tarefa-item {
+/* Tudo empilhado com um espaçamento (gap) entre os elementos */
+#app-content { 
+    flex: 1; 
+    overflow-y: auto; 
+    padding: 20px; 
     display: flex; 
-    align-items: center; 
-    gap: 12px; 
-    margin-bottom: 10px; 
-    cursor: pointer; 
-    padding: 12px; 
-    background: #F8F8F4; 
-    border-radius: 8px;
+    flex-direction: column; 
+    gap: 20px; 
 }
+
+.login-wrapper { width: 100%; margin: auto 0; padding: 20px 0; }
+
+#tabbar {
+    display: none; height: 70px; background: #ffffff; border-top: 1px solid #e0e0e0;
+    justify-content: space-around; align-items: center; flex-shrink: 0;
+}
+
+.tab-btn { background: none; border: none; display: flex; flex-direction: column; align-items: center; cursor: pointer; color: #888; font-size: 0.75em; font-weight: 600; flex: 1; }
+.tab-btn.active { color: #d4a017; }
+.tab-btn.active span { filter: drop-shadow(0px 2px 2px rgba(255, 215, 0, 0.5)); }
+
+.card { background: #fff; border: 1px solid #eee; border-radius: 12px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); width: 100%; }
+.postit { background: #FFF740; padding: 20px; border-radius: 2px; box-shadow: 4px 4px 12px rgba(0,0,0,0.1); transform: rotate(-1deg); color: #222; width: 100%; }
+.btn-primary { width: 100%; padding: 12px; background: #FFD700; color: #333; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: opacity 0.2s; }
+.btn-primary:hover { opacity: 0.9; }
+.input-padrao { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 10px; }
+
+/* Calendário */
+.grid-calendario { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; font-size: 0.95em; }
+.dia-calendario { position: relative; padding: 10px 0; cursor: pointer; border-radius: 6px; transition: 0.2s; }
+.dia-calendario:hover { background-color: #f1f3f4; }
+.dot-tarefa { width: 6px; height: 6px; background-color: #FF4444; border-radius: 50%; position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); }
+
+/* Flashcards */
+.flip-container { background-color: transparent; width: 100%; height: 250px; perspective: 1000px; margin-bottom: 5px; }
+.flip-card-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s; transform-style: preserve-3d; cursor: pointer; }
+.flip-container.flipped .flip-card-inner { transform: rotateY(180deg); }
+.flip-card-front, .flip-card-back { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); padding: 20px; text-align: center; }
+.flip-card-front { background: #fff; border: 2px solid #FFD700; }
+.flip-card-back { background: #fdfdfd; border: 2px solid #28a745; transform: rotateY(180deg); }
+
+/* Chat Paciente */
+.chat-bubble { padding: 10px 15px; border-radius: 15px; margin-bottom: 10px; max-width: 80%; font-size: 0.9em;}
+.chat-ia { background: #f1f3f4; align-self: flex-start; border-bottom-left-radius: 0; }
+.chat-user { background: #FFD700; align-self: flex-end; border-bottom-right-radius: 0; margin-left: auto;}
