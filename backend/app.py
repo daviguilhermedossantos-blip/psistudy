@@ -3,27 +3,34 @@ from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 
-# Configuramos o Flask para ler a pasta atual como pasta de arquivos estáticos (HTML, CSS, JS)
-app = Flask(__name__, static_folder='.', static_url_path='')
+app = Flask(__name__)
 CORS(app)
 
 # ==========================================
-# CONFIGURAÇÃO BLINDADA DO BANCO DE DADOS
+# DESCOBRE ONDE ESTÃO OS ARQUIVOS VISUAIS
+# ==========================================
+# Pega a pasta exata onde este arquivo app.py está salvo
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+
+# Se o index.html não estiver na mesma pasta do app.py, ele tenta achar na pasta anterior
+if not os.path.exists(os.path.join(BASE_DIR, 'index.html')):
+    BASE_DIR = os.path.abspath(os.path.join(BASE_DIR, '..'))
+
+# ==========================================
+# CONFIGURAÇÃO DO BANCO DE DADOS
 # ==========================================
 db_url = os.getenv('DATABASE_URL')
-
 if db_url:
     if db_url.startswith("postgres://"):
         db_url = db_url.replace("postgres://", "postgresql://", 1)
     if "?" in db_url:
         db_url = db_url.split("?")[0]
 else:
-    db_path = os.path.join(os.path.dirname(__file__), 'psistudy.db')
+    db_path = os.path.join(BASE_DIR, 'psistudy.db')
     db_url = 'sqlite:///' + db_path
 
 app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
 db = SQLAlchemy(app)
 
 # ==========================================
@@ -53,12 +60,21 @@ with app.app_context():
     db.create_all()
 
 # ==========================================
-# ROTA PRINCIPAL (MOSTRAR O SITE - FRONTEND)
+# ROTAS DO SITE (FRONTEND) - CORREÇÃO FINAL
 # ==========================================
 @app.route('/')
 def index():
-    # Isso faz o servidor enviar o seu index.html quando acessam o site
-    return send_from_directory('.', 'index.html')
+    # Se não achar o arquivo, vai mostrar na tela onde ele está procurando (ajuda a resolver o erro)
+    if not os.path.exists(os.path.join(BASE_DIR, 'index.html')):
+        return f"Erro: O arquivo index.html não foi encontrado na pasta {BASE_DIR}. Verifique se o nome do arquivo está tudo minúsculo!", 404
+    return send_from_directory(BASE_DIR, 'index.html')
+
+@app.route('/<path:filename>')
+def serve_static(filename):
+    # Garante que o app.js, style.css e imagens sejam entregues corretamente
+    if filename.startswith('api/'):
+        return "Not Found", 404
+    return send_from_directory(BASE_DIR, filename)
 
 # ==========================================
 # ROTAS DA API (BACKEND)
