@@ -1,9 +1,10 @@
-from flask import Flask, request, jsonify
+import os
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
-import os
 
-app = Flask(__name__)
+# Configuramos o Flask para ler a pasta atual como pasta de arquivos estáticos (HTML, CSS, JS)
+app = Flask(__name__, static_folder='.', static_url_path='')
 CORS(app)
 
 # ==========================================
@@ -12,15 +13,11 @@ CORS(app)
 db_url = os.getenv('DATABASE_URL')
 
 if db_url:
-    # 1. Arruma o prefixo exigido pelo SQLAlchemy
     if db_url.startswith("postgres://"):
         db_url = db_url.replace("postgres://", "postgresql://", 1)
-    
-    # 2. CORTA qualquer parâmetro problemático (como o ssl_context) da URL
     if "?" in db_url:
         db_url = db_url.split("?")[0]
 else:
-    # 3. Fallback seguro para rodar localmente no seu PC
     db_path = os.path.join(os.path.dirname(__file__), 'psistudy.db')
     db_url = 'sqlite:///' + db_path
 
@@ -56,7 +53,15 @@ with app.app_context():
     db.create_all()
 
 # ==========================================
-# ROTAS DA API
+# ROTA PRINCIPAL (MOSTRAR O SITE - FRONTEND)
+# ==========================================
+@app.route('/')
+def index():
+    # Isso faz o servidor enviar o seu index.html quando acessam o site
+    return send_from_directory('.', 'index.html')
+
+# ==========================================
+# ROTAS DA API (BACKEND)
 # ==========================================
 @app.route('/api/cadastro', methods=['POST'])
 def cadastro():
